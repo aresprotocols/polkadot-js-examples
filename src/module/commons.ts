@@ -44,6 +44,7 @@ export async function fetchGenesisAccount () {
 
 export async function fetchCustomAccount () {
   await cryptoWaitReady()
+  console.warn("******** your mnemonic ********")
   const mnemonic = 'please input your mnemonic'
   const root = keyring.addFromMnemonic(mnemonic, { name: 'testnet' }, 'sr25519')
   // const a1 = root.derive('//hard/soft1')

@@ -1,4 +1,4 @@
-import { apiProvider, sleep, balance } from './commons'
+import { apiProvider, sleep, balance } from './src/module/commons'
 import { KeyringPair } from '@polkadot/keyring/types'
 import { Proposal } from '@polkadot/types/interfaces/democracy'
 import { AccountInfo } from '@polkadot/types/interfaces/system/types'

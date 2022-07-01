@@ -2,9 +2,9 @@ import { ApiPromise } from '@polkadot/api'
 import { AccountId, Keys } from '@polkadot/types/interfaces'
 import { Vec } from '@polkadot/types-codec'
 import { Option } from '@polkadot/types'
-import * as fs from 'fs'
+// import * as fs from 'fs'
 
-const { fetchCustomAccount, fetchGenesisAccount, sleep, balance, rotateKeys, apiProvider } = require('./commons')
+const { fetchCustomAccount, fetchGenesisAccount, sleep, balance, rotateKeys, apiProvider } = require('./src/module/commons')
 const { transfer } = require('./balance')
 const { submitCandidacy, voteCandidate, renounceCandidacy, propose, voteAll } = require('./council')
 const {
@@ -19,6 +19,8 @@ const {
 const { externalPropose, externalProposeDefault, externalProposeMajority } = require('./democracy')
 const { bond, bondMore, vote, setSessionKeys, setValidatorPreferences, stop, setValidatorCount } = require('./staking')
 const {
+  active,
+  setting,
   newEstimates,
   participateEstimates,
   queryPreparedEstimates,
@@ -26,7 +28,7 @@ const {
   queryCompletedEstimates,
   queryParticipants,
   queryWinners
-} = require('./estimates')
+} = require('./src/module/estimates')
 
 const { upgrade } = require('./upgrade')
 
@@ -106,11 +108,11 @@ async function estimatesFlow (api: ApiPromise) {
       let distribute = end + 10
       created = false
 
-      await newEstimates(genesis['alice'], 'btc-usdt', start, end, distribute, 'DEVIATION', 500000, null, balance(100))
+      // await newEstimates(genesis['alice'], 'btc-usdt', start, end, distribute, 'DEVIATION', 500000, null, balance(100))
 
       // await newEstimates(accounts['a1'], 'btc-usdt', start, end, distribute, "RANGE", null, [20000 *  fraction, 40000 * fraction, 50000 * fraction], balance(200));
 
-      await newEstimates(genesis['alice'], 'eth-usdt', start, end, distribute, 'RANGE', null, [1000 * fraction, 3000 * fraction, 2000 * fraction], balance(123))
+      // await newEstimates(genesis['alice'], 'eth-usdt', start, end, distribute, 'RANGE', null, [1000 * fraction, 3000 * fraction, 2000 * fraction], balance(123))
 
       // await newEstimates(genesis['a2'], 'dot-usdt', start, end, distribute, 'DEVIATION', 500000, null, balance(222))
       console.log('new estimates')
@@ -212,30 +214,7 @@ async function main () {
   const initAccount = keyring.addFromMnemonic(process.env.MNEMONIC, { name: 'init' }, 'sr25519')
   const controller0 = initAccount.derive('//1//controller')
 
-  //0xcc9c195e5d8503758007bc65f3f24815dfb76f18288ca167a30f8c2f0affff3c
-  // console.log(b.toHuman())
-  // {
-  //     //初始化 价格竞猜的设置
-  //     let newMembers = [
-  //         accounts['a0'].address,
-  //         accounts['a1'].address,
-  //         accounts['a2'].address
-  //     ]
-  //     let unsignedMembers = [
-  //         initAccount.derive("//1//aura").address
-  //     ]
-  //     let lockedEstimates = 5;
-  //     let minimumTicketPrice = balance(100);
-  //     console.log(`newMembers: ${newMembers}, unsignedMembers: ${unsignedMembers}, lockedEstimates: ${lockedEstimates}, minimumTicketPrice: ${minimumTicketPrice}`);
-  //     // Send the actual sudo transaction
-  //     const tx = await api.tx.sudo
-  //         .sudo(
-  //             api.tx.estimates.preference(newMembers, unsignedMembers, lockedEstimates, minimumTicketPrice)
-  //         )
-  //         .signAndSend(controller0);
-  //     console.log(`sudo hash: ${tx}`);
-  //     await sleep(3000);
-  // }
+
 
   // console.log(xxhashAsHex("Aura", 128));
   // console.log(xxhashAsHex("Authorities", 128));
@@ -304,10 +283,12 @@ async function main () {
   const genesis = await fetchGenesisAccount()
   const initAccount = keyring.addFromMnemonic(process.env.MNEMONIC, { name: 'init' }, 'sr25519')
   const controller0 = initAccount.derive('//1//controller')
-  const path = '/Users/zhong/spaces/ares/ares/target/release/wbuild/runtime-pioneer-node/runtime_pioneer_node.wasm'
-  const code = fs.readFileSync(path).toString('hex')
-  const api = await apiProvider()
-  await upgrade(controller0, code)
+
+  await main()
+  // const path = '/Users/zhong/spaces/ares/ares/target/release/wbuild/runtime-pioneer-node/runtime_pioneer_node.wasm'
+  // const code = fs.readFileSync(path).toString('hex')
+  // const api = await apiProvider()
+  // await upgrade(controller0, code)
   // const authorities = await api.query.aura.authorities()
   // console.log(authorities.toHuman())
   // // const keys = await api.query.session.queuedKeys()

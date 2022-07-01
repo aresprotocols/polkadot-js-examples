@@ -1,4 +1,4 @@
-import { apiProvider } from './commons'
+import { apiProvider } from './src/module/commons'
 import { propose } from './council'
 import { blake2AsHex, base64Decode } from '@polkadot/util-crypto'
 import { decodePair } from '@polkadot/keyring/pair/decode'

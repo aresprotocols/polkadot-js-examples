@@ -1,4 +1,4 @@
-import { apiProvider } from './commons'
+import { apiProvider } from './src/module/commons'
 import { extractAuthor } from '@polkadot/api-derive/type/util'
 import type { AccountId, BlockNumber, H160, H256, H64, Hash, Header, Index, Justification, KeyValue, SignedBlock, StorageData } from '@polkadot/types/interfaces/runtime';
 async  function  main(){

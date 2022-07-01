@@ -1,4 +1,4 @@
-import { apiProvider } from './commons'
+import { apiProvider } from './src/module/commons'
 import { extractAuthor } from '@polkadot/api-derive/type/util'
 import type {
   AccountId,

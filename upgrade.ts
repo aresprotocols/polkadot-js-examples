@@ -1,4 +1,4 @@
-import { apiProvider } from './commons'
+import { apiProvider } from './src/module/commons'
 import { ISubmittableResult } from '@polkadot/types/types'
 import { KeyringPair } from '@polkadot/keyring/types'
 

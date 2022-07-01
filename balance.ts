@@ -1,20 +1,20 @@
-import  { apiProvider, balance }  from './commons'
+import  { apiProvider, balance }  from './src/module/commons'
 import { Keyring } from '@polkadot/api'
 import { KeyringPair } from '@polkadot/keyring/types'
 import { AccountInfo, AccountInfoWithTripleRefCount } from '@polkadot/types/interfaces/system'
-import { AccountInfoWithDualRefCount } from '@polkadot/types/interfaces/system/types'
+// import { FrameSystemAccountInfo } from '@polkadot/api-augment/substrate'
 
 export async function transfer (sender: KeyringPair, accounts: KeyringPair[], amount: number) {
     // Create the API and wait until ready
     const api = await apiProvider()
 
-    const info: AccountInfoWithDualRefCount = await api.query.system.account(sender.address)
-    let nonce = info.nonce.toNumber()
-    for (let key in accounts) {
-        const txHash = await api.tx.balances.transfer(accounts[key].address, balance(amount)).signAndSend(sender, { nonce })
-        nonce += 1
-        console.log(`transfer from ${sender.address} to ${key}, balance: ${amount}, hash: ${txHash}`)
-    }
+    // const info = await api.query.system.account(sender.address) as AccountInfoWithTripleRefCount
+    // let nonce = info.nonce
+    // for (let key in accounts) {
+    //     const txHash = await api.tx.balances.transfer(accounts[key].address, balance(amount)).signAndSend(sender, { nonce })
+    //     nonce += 1
+    //     console.log(`transfer from ${sender.address} to ${key}, balance: ${amount}, hash: ${txHash}`)
+    // }
 
     /*
     const txHash = await api.tx.balances.transfer(spider, balance(200)).signAndSend(alice);

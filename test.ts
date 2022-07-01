@@ -1,6 +1,6 @@
 import { base64Decode, blake2AsHex, blake2AsU8a, decodeAddress, sr25519PairFromSeed } from '@polkadot/util-crypto'
 
-const { fetchCustomAccount, fetchGenesisAccount, sleep, balance, rotateKeys, apiProvider } = require('./commons')
+const { fetchCustomAccount, fetchGenesisAccount, sleep, balance, rotateKeys, apiProvider } = require('./src/module/commons')
 import { ApiPromise, WsProvider, Keyring } from '@polkadot/api'
 import { decodePair } from '@polkadot/keyring/pair/decode'
 import { EncryptedJsonEncoding } from '@polkadot/util-crypto/json/types'
@@ -66,7 +66,7 @@ async function main () {
   // console.log(decoded)
   // console.log(pair.publicKey)
   // console.log(a.publicKey)
-  const seed = hexToU8a('0xfac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e')
+  const seed = hexToU8a('')
   //let test = schnorrkelKeypairFromSeed(seed)
   let test = keyring.addFromSeed(seed, {}, 'sr25519')
   let testb = sr25519PairFromSeed(seed)

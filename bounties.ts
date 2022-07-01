@@ -1,4 +1,4 @@
-import { apiProvider, balance } from './commons'
+import { apiProvider, balance } from './src/module/commons'
 import { Keyring } from '@polkadot/api'
 import { KeyringPair } from '@polkadot/keyring/types'
 import { Vec } from '@polkadot/types-codec'

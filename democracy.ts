@@ -1,4 +1,4 @@
-import  { apiProvider, balance }  from './commons'
+import  { apiProvider, balance }  from './src/module/commons'
 import  { propose } from './council'
 import { blake2AsHex } from '@polkadot/util-crypto'
 import { KeyringPair } from '@polkadot/keyring/types'

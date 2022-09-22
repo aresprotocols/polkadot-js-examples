@@ -1,6 +1,6 @@
 import { ApiPromise, WsProvider, Keyring } from '@polkadot/api'
 import { cryptoWaitReady, blake2AsHex, xxhashAsHex } from '@polkadot/util-crypto'
-import { BN, u8aToHex } from '@polkadot/util'
+import { BN, hexToBigInt, hexToNumber, hexToString, u8aToHex } from '@polkadot/util'
 import { config as dotenvConfig } from 'dotenv'
 
 const keyring = new Keyring({ type: 'sr25519' })
@@ -10,6 +10,60 @@ import { ApiBase } from '@polkadot/api/base'
 
 dotenvConfig()
 
+// excite tape choice poverty section resist parent surge possible soap thing copper//Es//Admin
+//
+export async function getTestAccount(derive: string, initialBalance: number=0): Promise<KeyringPair> {
+  await cryptoWaitReady()
+  const ss58num = process.env.APP_CHAIN_SS58?Number(process.env.APP_CHAIN_SS58):42
+  keyring.setSS58Format(ss58num);
+  const baseMnemonic = process.env.APP_TEST_ACCOUNT_MNEMONIC||''
+  const accountMnemonic = `${baseMnemonic}${derive}`
+  const testAccount = keyring.addFromMnemonic(accountMnemonic)
+  console.log(`accountMnemonic = ${accountMnemonic}  ss58[${ss58num}] = ${testAccount.address}`)
+  // try to transfer balance
+  return new Promise(async (resolve, rejects) => {
+    try {
+      if (initialBalance > 0) {
+        const api = await apiProvider()
+        const accountData = await api.query.system.account(testAccount.address)
+
+        // console.log("accountData.toJSON()", accountData.toHuman() )
+        // @ts-ignore
+        // console.log('hexToBigInt(accountData.toJSON().data.free).toString() = ', accountData.toHuman().data.free.replaceAll(',',''))
+        // @ts-ignore
+        let accountFree: BN = new BN(accountData.toHuman().data.free.replaceAll(',',''))
+        let survivalBalance = new BN(0)
+        // @ts-ignore
+        if(balance(500).cmp(accountFree) == 1) {
+          console.log(balance(500), accountFree)
+          // @ts-ignore
+          survivalBalance = balance(500).sub(accountFree)
+        }
+        // console.log('survivalBalance ============= ', survivalBalance)
+        const stashAccount = keyring.addFromMnemonic(process.env.APP_STASH_ACCOUNT_MNEMONIC || '//Alice//stash')
+        const balanceBn = balance(initialBalance).add(survivalBalance)
+        // console.log('Will add balacne = ', balanceBn)
+        await api.tx.balances.transfer(testAccount.address, balanceBn).signAndSend(stashAccount)
+        await sleep(6000)
+      }
+      resolve(testAccount)
+    } catch (e) {
+      rejects(e)
+    }
+  })
+}
+
+export function extractCmdOrder () {
+  const args: string[] = process.argv;
+  const result: any = {}
+  if(args.length > 2){
+    for(let i=2; i<args.length; i++) {
+      let parmas = args[i].split('=')
+      result[parmas[0].trim()]=parmas[1].trim()
+    }
+  }
+  return result
+}
 export async function fetchGenesisAccount () {
   await cryptoWaitReady()
   const alice: KeyringPair = keyring.addFromUri('//Alice', { name: 'Alice' })
@@ -39,6 +93,23 @@ export async function fetchGenesisAccount () {
     dave_stash,
     eve_stash,
     ferdie_stash
+  }
+}
+
+// 4PsBNvqF1vwEMhj34TtFSqx6Zq4dS5rEjok1dNp14rF33REg
+// 4Tf8HMMJt4M3Tb8MEfbdPTLdczemUaZQg45PSuYNHyrqMLCZ
+export async function fetchKamiAccount() {
+  await cryptoWaitReady()
+  // 4QQX8dDLh2wbPaoH7xyDp6VadmFBvRUq75PgNmnd9i9DCvaE
+  const kami_test1: KeyringPair = keyring.addFromMnemonic('excite tape choice poverty section resist parent surge possible soap thing copper', {name: 'kami-test1'})
+  // 4Rs85h1wGQzCKYN5bohxEC1XaCwofcxVfYmJ1JYxCynq13qu
+  const kami_test2: KeyringPair = keyring.addFromMnemonic('minimum verify renew solid light dizzy thought february main sister raw buddy', {name: 'kami-test1'})
+  // 4RzDe7mQnUpahgAkaYJfHijJDkipADJXXq7h9fBtQSqqsATo
+  const kami_test3: KeyringPair = keyring.addFromMnemonic('advice farm include beef alter canvas trumpet debris slight february insect grain')
+  return {
+    kami_test1,
+    kami_test2,
+    kami_test3
   }
 }
 
@@ -133,10 +204,10 @@ export function sleep (ms: number) {
 
 export async function apiProvider (): Promise<ApiPromise> {
 
-  const WS_ENDPOINT = process.env.WS_ENDPOINT
-
+  const WS_ENDPOINT = process.env.WS_ENDPOINT || 'ws://127.0.0.1:9944'
+  console.log(`Polkadot : ${WS_ENDPOINT}`)
   // Initialise the provider to connect to the local node
-  const provider = new WsProvider(WS_ENDPOINT || 'ws://127.0.0.1:9944')
+  const provider = new WsProvider(WS_ENDPOINT)
   return await ApiPromise.create({ provider })
   // return await ApiPromise.create(
   //     {

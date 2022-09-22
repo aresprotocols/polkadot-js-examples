@@ -1,19 +1,56 @@
 import { ISubmittableResult } from '@polkadot/types/types'
 import { KeyringPair } from '@polkadot/keyring/types'
-import { BN } from '@polkadot/util'
+import { BN, bufferToU8a, u8aConcat, u8aToHex } from '@polkadot/util'
 import { ApiBase } from '@polkadot/api/base'
 import { encodeAddress } from '@polkadot/util-crypto'
+import { createEncode } from '@polkadot/util-crypto/base32/helpers'
 
 const { apiProvider, sleep, balance } = require('./commons')
 const { propose } = require('../../council')
+const EMPTY_U8A_32 = new Uint8Array(32);
 
-function getSubAccount (symbol: string): string {
-  // why padding space
-  let prefix = new Uint8Array([...Buffer.from('modl'), ...Buffer.from('py/arest'), ...Buffer.from(' '), ...Buffer.from(symbol)])
+export type EstimatesType = 'DEVIATION'|'RANGE'
+export type ParamsOfNewEstimates = {
+  symbol: string,
+  start: number,
+  end: number,
+  distribute: number,
+  estimatesType: EstimatesType,
+  deviation: number | undefined,
+  range: Array<number> | undefined,
+  rangeFraction: number | undefined ,
+  multiplier: Array<any>,
+  initReward: BN,
+  participatePrice: BN
+}
 
-  // padding 0 byte
-  let result = new Uint8Array([...prefix, ...Buffer.alloc(32 - prefix.length, 0)])
-  return encodeAddress(result, 34)
+export type ParamsOfParticipateEstimates = {
+  symbol: string,
+  estimatesPrice: number | undefined,
+  estimatesType: EstimatesType,
+  fractionLength: number| undefined,
+  rangeIndex: number | undefined,
+  multiplier: any,
+  bscAddress: string | undefined
+}
+
+export type ParamsOfEstimatesPreference = {
+  admins: [string],
+  lock: number,
+  minimumTicketPrice: BN,
+  minimumInitReward: BN
+}
+
+export function getSubAccount (symbol: string, type: EstimatesType): [string, string] {
+  const result = u8aConcat(
+    'modl',
+    'py/arest',
+    symbol,
+    [type=='DEVIATION'?1:2],
+    EMPTY_U8A_32
+  ).subarray(0, 32)
+  // console.log(u8aToHex(result))
+  return [encodeAddress(result, 34), u8aToHex(result)]
 }
 
 async function active (api: ApiBase<'promise'> | undefined, root: KeyringPair, b: boolean) {
@@ -26,13 +63,16 @@ async function active (api: ApiBase<'promise'> | undefined, root: KeyringPair, b
   console.log(`sudo hash: ${tx}`)
 }
 
-async function setting (api: ApiBase<'promise'> | undefined, root: KeyringPair, admins: [string], whitelist: [string], lock: number, minimumTicketPrice: BN, minimumInitReward: BN) {
+
+async function setting (api: ApiBase<'promise'> | undefined, root: KeyringPair, params: ParamsOfEstimatesPreference) {
   if (!api) return
   const tx = await api.tx.sudo.sudo(
-    api.tx.estimates.preference(admins, whitelist, lock, minimumTicketPrice, minimumInitReward)
+    api.tx.estimates.preference(params.admins, params.lock, params.minimumTicketPrice, params.minimumInitReward)
   ).signAndSend(root)
   console.log(`sudo hash: ${tx}`)
 }
+
+
 
 /**
  * 创建价格竞猜
@@ -49,10 +89,26 @@ async function setting (api: ApiBase<'promise'> | undefined, root: KeyringPair, 
  * @param participatePrice 参与竞猜需要的金额
  * @param init_reward
  * */
-async function newEstimates (api: ApiBase<'promise'>, sender: KeyringPair, symbol: string, start: number, end: number, distribute: number, estimatesType: string, deviation: number | undefined, range: Array<number> | undefined, multiplier: Array<any>, init_reward: BN, participatePrice: BN,) {
+async function newEstimates (
+  api: ApiBase<'promise'>,
+  sender: KeyringPair,
+  options: ParamsOfNewEstimates
+) {
+  console.log('ParamsOfNewEstimates == ', options)
   // const api = await apiProvider()
-  const unsub = await api.tx.estimates.newEstimates(symbol, start, end, distribute, estimatesType, deviation, range, multiplier, init_reward, participatePrice)
-    .signAndSend(sender, (result: ISubmittableResult) => {
+  const unsub = await api.tx.estimates.newEstimates(
+    options.symbol,
+    options.start,
+    options.end,
+    options.distribute,
+    options.estimatesType,
+    options.deviation,
+    options.range,
+    options.rangeFraction,
+    options.multiplier,
+    options.initReward,
+    options.participatePrice
+  ).signAndSend(sender, (result: ISubmittableResult) => {
       const dispatchError = result.dispatchError
       const status = result.status
 
@@ -87,9 +143,22 @@ async function newEstimates (api: ApiBase<'promise'>, sender: KeyringPair, symbo
  * @param multiplier 倍数。只有3个值可填: ["Base1","Base2", "Base5"]
  * @param bsc_address 接收发放奖励的BSC地址。
  * */
-async function participateEstimates (api: ApiBase<'promise'>, sender: KeyringPair, symbol: string, estimatesPrice: number | undefined, rangeIndex: number | undefined, multiplier: any, bsc_address: string) {
+async function participateEstimates (
+  api: ApiBase<'promise'>,
+  sender: KeyringPair,
+  options: ParamsOfParticipateEstimates,
+) {
+  console.log(`-- execute participateEstimates operation with ${sender.address} `)
   // const api = await apiProvider()
-  const unsub = await api.tx.estimates.participateEstimates(symbol, estimatesPrice, rangeIndex, multiplier, bsc_address)
+  const unsub = await api.tx.estimates.participateEstimates(
+    options.symbol,
+    options.estimatesType,
+    options.estimatesPrice,
+    options.fractionLength,
+    options.rangeIndex,
+    options.multiplier,
+    options.bscAddress
+  )
     .signAndSend(sender, ({ status, dispatchError }: ISubmittableResult) => {
       if (dispatchError) {
         if (dispatchError.isModule) {

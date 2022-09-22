@@ -1,9 +1,25 @@
 {
+    "scripts": {
+        "estimates-active-pallet": "ts-node src/test/estimates-active-pallet.ts",
+        "estimates-for-localchain": "ts-node src/test/estimates-for-localchain.ts",
+        "estimates-account": "ts-node src/test/estimates-account.ts",
+        "test-estimates-create-aaveusdt": "ts-node src/test/estimates-initialize-and-create-aave-usdt.ts",
+        "test-init-manual-bridge": "ts-node src/test/manual-bridge-init-and-transfer",
+        "make-ar-account": "ts-node src/make_ar_account.ts",
+        "mint-points": "ts-node src/mint_points_to_accounts.ts",
+        "update-config-sudo": "ts-node src/update_config_with_sudo.ts",
+        "update-config-tech": "ts-node src/update_config_with_tech_concil.ts",
+        "update-config-testnet": "ts-node src/update_config_with_tech_concil_for_ato_testnet.ts",
+        "update-config-mainnet": "ts-node src/update_config_with_tech_concil_for_ato_mainnet.ts",
+        "create-puzzle-a10": "ts-node src/create_test_puzzle.ts",
+        "estimates-kami-creater": "ts-node src/test/estimates-kami-creater.ts",
+        "clean": "rm -rf ./dist/* && touch ./dist/.keep"
+    },
     "dependencies": {
-        "@polkadot/api": "^8.4.2",
-        "@polkadot/types": "^8.4.2",
-        "@polkadot/util": "^9.2.1",
-        "@polkadot/util-crypto": "^9.2.1",
+        "@polkadot/api": "^9.4.1",
+        "@polkadot/types": "^9.4.1",
+        "@polkadot/util": "^10.1.8",
+        "@polkadot/util-crypto": "^10.1.8",
         "dotenv": "^16.0.0"
     },
     "devDependencies": {
